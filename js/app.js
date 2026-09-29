@@ -81,7 +81,6 @@ btnCerrarCurso.addEventListener('click', () => {
     document.querySelector('.welcome-section').style.display = 'block';
 });
 
-// Agrega esto en tu app.js, debajo de donde declaraste la lógica del curso
 
 const tarjetaCalculadora = document.getElementById('card-calculadora');
 const seccionCalculadora = document.getElementById('modulo-calculadora');

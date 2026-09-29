@@ -246,6 +246,24 @@ body {
     margin-top: 2rem;
 }
 
+.btn-secundario {
+    background: transparent;
+    color: var(--accent);
+    border: 2px solid var(--accent);
+    padding: 8px 18px;
+    /* Compensación por el grosor del borde */
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 2rem;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.btn-secundario:hover {
+    background: var(--accent);
+    color: white;
+}
+
+
 /* --- ESTILOS DE LA CALCULADORA --- */
 .calculadora-container {
     background: var(--bg-card);
