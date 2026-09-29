@@ -1,20 +1,60 @@
-// 1. Nuestra Clase Usuario
+// 1. Inicializar Firebase con tus credenciales
+const firebaseConfig = {
+    apiKey: "AIzaSyB3Wp0-T8GTI_iHBZcEJsomtDHtg6z1Aps",
+    authDomain: "analista-definitivo.firebaseapp.com",
+    projectId: "analista-definitivo",
+    storageBucket: "analista-definitivo.firebasestorage.app",
+    messagingSenderId: "1030303777819",
+    appId: "1:1030303777819:web:e1b0505feac89a1c9164be",
+    measurementId: "G-V5W6FYS16D"
+};
+
+// Arrancamos los motores de Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 2. Nuestra Clase Usuario adaptada a la Nube
 class Usuario {
-    constructor(nombre, progreso = 0) {
-        this.nombre = nombre;
-        this.progresoCapacitacion = progreso; // Si no le pasamos progreso, inicia en 0
+    constructor(uid, email, progreso = 0) {
+        this.uid = uid; // El ID único que Firebase le da a cada cuenta
+        this.email = email;
+        this.progresoCapacitacion = progreso;
     }
 
-    // Método para guardar/actualizar en el navegador (¡Aquí usamos JSON!)
-    guardarEnLocal() {
-        localStorage.setItem('usuarioActual', JSON.stringify(this));
+    // Guardar o actualizar en Firestore
+    async guardarEnNube() {
+        try {
+            await db.collection("usuarios").doc(this.uid).set({
+                email: this.email,
+                progresoCapacitacion: this.progresoCapacitacion
+            });
+        } catch (error) {
+            console.error("Error guardando progreso en Firestore:", error);
+        }
     }
 
-    // Método de ejemplo para simular que avanzó en un curso
-    avanzarProgreso(porcentaje) {
+    // Avanzar progreso y sincronizar automáticamente
+    async avanzarProgreso(porcentaje) {
         this.progresoCapacitacion += porcentaje;
         if (this.progresoCapacitacion > 100) this.progresoCapacitacion = 100;
-        this.guardarEnLocal(); // Guardamos el nuevo progreso automáticamente
-        console.log(`Progreso actualizado: ${this.progresoCapacitacion}%`);
+
+        await this.guardarEnNube();
+        console.log(`¡Nube sincronizada! Progreso actual: ${this.progresoCapacitacion}%`);
+    }
+
+    // Función estática para descargar los datos al iniciar sesión
+    static async cargarDesdeNube(uid, email) {
+        const docRef = await db.collection("usuarios").doc(uid).get();
+
+        if (docRef.exists) {
+            // Si el usuario ya existe, cargamos su progreso
+            const data = docRef.data();
+            return new Usuario(uid, email, data.progresoCapacitacion);
+        } else {
+            // Si es un usuario recién registrado, creamos su registro en 0%
+            const nuevoUser = new Usuario(uid, email, 0);
+            await nuevoUser.guardarEnNube();
+            return nuevoUser;
+        }
     }
 }

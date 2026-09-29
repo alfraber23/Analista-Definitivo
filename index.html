@@ -6,16 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Análisis de Cuentas</title>
     <link rel="stylesheet" href="css/style.css">
+
+    <!-- SDKs de Firebase (Versión Compat por CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
     <!-- PANTALLA DE LOGIN -->
     <main id="login-screen" class="login-container">
         <div class="login-box">
-            <h2>Bienvenido</h2>
-            <p>Ingresa para continuar tu capacitación</p>
-            <input type="text" id="input-usuario" placeholder="Tu nombre (ej. Beto)">
-            <button id="btn-ingresar">Ingresar</button>
+            <h2>Acceso al Sistema</h2>
+            <p>Ingresa tus credenciales para continuar</p>
+            <input type="email" id="input-email" placeholder="Correo electrónico (ej. beto@hospital.com)">
+            <input type="password" id="input-password" placeholder="Contraseña (Mín. 6 caracteres)">
+
+            <button id="btn-ingresar" class="btn-primario">Iniciar Sesión</button>
+            <button id="btn-registrar"
+                style="margin-top: 10px; background: transparent; border: 1px solid var(--accent); color: var(--accent); padding: 10px; width: 100%; border-radius: 5px; cursor: pointer;">Crear
+                Cuenta Nueva</button>
         </div>
     </main>
 
@@ -26,6 +36,7 @@
             <nav>
                 <button id="btn-home">Inicio</button>
                 <button id="btn-faq">FAQ</button>
+                <button id="btn-logout" style="border-color: #ef4444; color: #ef4444;">Cerrar Sesión</button>
             </nav>
         </header>
 

@@ -1,52 +1,55 @@
-//Elementos del DOM
+// Elementos del Login
 const loginScreen = document.getElementById('login-screen');
 const appDashboard = document.getElementById('app-dashboard');
-const inputUsuario = document.getElementById('input-usuario');
+const inputEmail = document.getElementById('input-email');
+const inputPassword = document.getElementById('input-password');
 const btnIngresar = document.getElementById('btn-ingresar');
+const btnRegistrar = document.getElementById('btn-registrar');
+const btnLogout = document.getElementById('btn-logout');
 
-// Variable global para usar a nuestro usuario en toda la app
+// Instancia de Auth
+const auth = firebase.auth();
 let usuarioLogueado = null;
 
-//Función para revisar si ya estábamos logueados al abrir la página
-function verificarSesion() {
-    const datosGuardados = localStorage.getItem('usuarioActual');
+// EL VIGILANTE: Escucha si alguien inicia o cierra sesión en tiempo real
+auth.onAuthStateChanged(async (user) => {
+    if (user) {
+        // Alguien inició sesión, descargamos sus datos de Firestore
+        usuarioLogueado = await Usuario.cargarDesdeNube(user.uid, user.email);
 
-    if (datosGuardados) {
-        // Aquí convertimos el JSON que guardamos de regreso a un objeto útil
-        const datosParseados = JSON.parse(datosGuardados);
-
-        // Reconstruimos nuestro objeto de la clase Usuario
-        usuarioLogueado = new Usuario(datosParseados.nombre, datosParseados.progresoCapacitacion);
-
-        // Saltamos el login
         loginScreen.style.display = 'none';
         appDashboard.style.display = 'block';
-
-        console.log(`¡Bienvenido de nuevo, ${usuarioLogueado.nombre}! Tu progreso guardado es ${usuarioLogueado.progresoCapacitacion}%`);
+        console.log(`Sesión activa: ${usuarioLogueado.email}`);
+    } else {
+        // No hay sesión activa, bloqueamos el acceso
+        usuarioLogueado = null;
+        loginScreen.style.display = 'flex';
+        appDashboard.style.display = 'none';
     }
-}
-
-//Lógica del botón Ingresar (para usuarios nuevos)
-btnIngresar.addEventListener('click', () => {
-    const nombre = inputUsuario.value.trim();
-
-    if (nombre === "") {
-        alert("Por favor, ingresa tu nombre.");
-        return;
-    }
-
-    // Creamos al usuario desde cero
-    usuarioLogueado = new Usuario(nombre);
-    usuarioLogueado.guardarEnLocal(); // Lo guardamos en JSON en el navegador
-
-    loginScreen.style.display = 'none';
-    appDashboard.style.display = 'block';
-
-    console.log(`Usuario nuevo registrado: ${usuarioLogueado.nombre}`);
 });
 
-// Ejecutamos esta verificación apenas carga el script
-verificarSesion();
+// Botón de Iniciar Sesión
+btnIngresar.addEventListener('click', () => {
+    const email = inputEmail.value.trim();
+    const pass = inputPassword.value;
+    auth.signInWithEmailAndPassword(email, pass)
+        .catch(error => alert("Error al ingresar: " + error.message));
+});
+
+// Botón de Crear Cuenta
+btnRegistrar.addEventListener('click', () => {
+    const email = inputEmail.value.trim();
+    const pass = inputPassword.value;
+    auth.createUserWithEmailAndPassword(email, pass)
+        .catch(error => alert("Error al registrar: " + error.message));
+});
+
+// Botón de Cerrar Sesión
+btnLogout.addEventListener('click', () => {
+    auth.signOut();
+});
+
+// ... aquí abajo dejas el resto de tu código de app.js (los clics de las tarjetas, etc.) ...
 
 //Lógica para abrir el curso desde el Dashboard
 const tarjetaCapacitacion = document.getElementById('card-capacitacion');
