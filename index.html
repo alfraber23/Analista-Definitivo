@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Análisis de Cuentas</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- PANTALLA DE LOGIN -->
+    <main id="login-screen" class="login-container">
+        <div class="login-box">
+            <h2>Bienvenido</h2>
+            <p>Ingresa para continuar tu capacitación</p>
+            <input type="text" id="input-usuario" placeholder="Tu nombre (ej. Beto)">
+            <button id="btn-ingresar">Ingresar</button>
+        </div>
+    </main>
+
+    <div id="app-dashboard" style="display: none;">
+        <!-- Menú de navegación superior -->
+        <header class="navbar">
+            <h1>Portal de Análisis de Cuentas</h1>
+            <nav>
+                <button id="btn-home">Inicio</button>
+                <button id="btn-faq">FAQ</button>
+            </nav>
+        </header>
+
+        <!-- Contenedor principal -->
+        <main class="dashboard-container">
+            <section class="welcome-section">
+                <h2>Bienvenido al área de trabajo</h2>
+                <p>Selecciona una herramienta para comenzar.</p>
+            </section>
+
+            <!-- Tarjetas de acceso rápido -->
+            <section class="tools-grid">
+                <div class="tool-card" id="card-capacitacion">
+                    <h3>📚 Capacitación Dinámica</h3>
+                    <p>Guía paso a paso: Consumos, Altas, VoBos y HANA.</p>
+                </div>
+
+                <div class="tool-card" id="card-calculadora">
+                    <h3>⏱️ Calculadora de Tiempos</h3>
+                    <p>Cirugía, Anestesia y Gas.</p>
+                </div>
+
+                <div class="tool-card" id="card-cedula">
+                    <h3>📝 Generador de Cédula</h3>
+                    <p>Crea el formato para VoBos rápidamente.</p>
+                </div>
+
+                <div class="tool-card" id="card-paquetes">
+                    <h3>📦 Buscador de Paquetes</h3>
+                    <p>Consulta al instante (Adiós Excel).</p>
+                </div>
+            </section>
+
+            <!-- CONTENEDOR DEL CURSO (Oculto por defecto) -->
+            <section id="modulo-curso" style="display: none;">
+                <div class="curso-header">
+                    <h2>📚 Ruta de Aprendizaje: Análisis de Cuentas</h2>
+                    <div class="progreso-container">
+                        <span id="texto-progreso">Progreso: 0%</span>
+                        <div class="barra-fondo">
+                            <div id="barra-llenado" class="barra-color"></div>
+                        </div>
+                    </div>
+                    <button id="btn-cerrar-curso" class="btn-secundario">Volver al Dashboard</button>
+                </div>
+
+                <div class="curso-layout">
+                    <!-- Temario Lateral -->
+                    <aside class="curso-sidebar">
+                        <ul id="lista-modulos">
+                            <!-- Los data-id ahora coinciden con los nombres de nuestro modulos.js -->
+                            <li data-id="sap_hana" class="modulo-item activo">1. SAP HANA Básico</li>
+                            <li data-id="revision_consumos" class="modulo-item">2. Revisión de Consumos</li>
+                            <li data-id="vobos_cedulas" class="modulo-item">3. VoBos y Cédulas</li>
+                            <li data-id="altas" class="modulo-item">4. Proceso de Altas</li>
+                            <li data-id="digitalizacion" class="modulo-item">5. Digitalización (Robot)</li>
+                        </ul>
+                    </aside>
+
+                    <!-- Contenido Dinámico -->
+                    <article class="curso-contenido">
+                        <h3 id="titulo-leccion">1. SAP HANA Básico</h3>
+                        <div id="cuerpo-leccion">
+                            <p>Aquí irá el contenido interactivo del módulo...</p>
+                        </div>
+                        <button id="btn-completar-leccion" class="btn-primario">Marcar como Completado</button>
+                    </article>
+                </div>
+            </section>
+
+            <section id="modulo-calculadora" style="display: none;">
+                <div class="curso-header">
+                    <h2>⏱️ Calculadora de Tiempos (Qx y Ax)</h2>
+                    <button id="btn-cerrar-calculadora" class="btn-secundario">Volver al Dashboard</button>
+                </div>
+
+                <div class="calculadora-container">
+                    <p class="subtitle" style="color: var(--text-secondary); margin-bottom: 20px;">Formato Estricto 24h.
+                        Escribe de corrido sin usar los dos puntos.</p>
+
+                    <div class="input-group">
+                        <label>Hora Inicio Anestesia:</label>
+                        <input type="text" id="hora-inicio-ax" placeholder="00:00" maxlength="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Hora Fin Cirugía:</label>
+                        <input type="text" id="hora-fin-qx" placeholder="00:00" maxlength="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Hora Fin Anestesia:</label>
+                        <input type="text" id="hora-fin-ax" placeholder="00:00" maxlength="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Hora Inicio Gas:</label>
+                        <input type="text" id="hora-inicio-gas" placeholder="00:00" maxlength="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Hora Fin Gas:</label>
+                        <input type="text" id="hora-fin-gas" placeholder="00:00" maxlength="5">
+                    </div>
+                    <!-- El botón de calcular desaparece para dar paso al tiempo real -->
+
+                    <div class="resultados-box">
+                        <h3>Tiempos a Corroborar:</h3>
+                        <p>Quirófano (Qx): <span id="res-qx" class="res-destacado">--:--</span></p>
+                        <p>Anestesia (Ax): <span id="res-ax" class="res-destacado">--:--</span></p>
+                        <p>Gas (Gas): <span id="res-gas" class="res-destacado">--:--</span></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HERRAMIENTA: BUSCADOR DE PAQUETES -->
+            <section id="modulo-paquetes" style="display: none;">
+                <div class="curso-header">
+                    <h2>📦 Buscador de Paquetes</h2>
+                    <button id="btn-cerrar-paquetes" class="btn-secundario">Volver al Dashboard</button>
+                </div>
+
+                <div class="buscador-container">
+                    <div class="search-bar">
+                        <input type="text" id="input-busqueda" placeholder="Ej. PQ-MAT-01 o 'Maternidad'">
+                        <button id="btn-buscar-pqte" class="btn-primario" style="margin-top: 0;">Buscar</button>
+                    </div>
+
+                    <!-- Aquí inyectaremos los resultados dinámicamente -->
+                    <div id="resultados-busqueda" class="resultados-area">
+                        <p style="color: var(--text-secondary); text-align: center;">Ingresa un código o nombre para
+                            comenzar.</p>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="js/classes/Usuario.js"></script>
+    <script src="js/classes/Curso.js"></script>
+    <script src="js/classes/Calculadora.js"></script>
+    <script src="js/classes/Buscador.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

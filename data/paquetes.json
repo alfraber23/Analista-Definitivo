@@ -1,0 +1,72 @@
+[
+    {
+        "codigo": "PQ-MAT-01",
+        "nombre": "Paquete Maternidad Parto Natural",
+        "contenido": [
+            {
+                "desc": "Habitación Estándar",
+                "cant": 1
+            },
+            {
+                "desc": "Cunero Fisiológico",
+                "cant": 1
+            },
+            {
+                "desc": "Gasas estériles 10x10",
+                "cant": 5
+            },
+            {
+                "desc": "Solución Fisiológica 500ml",
+                "cant": 2
+            },
+            {
+                "desc": "Bata para paciente",
+                "cant": 1
+            }
+        ]
+    },
+    {
+        "codigo": "PQ-MAT-02",
+        "nombre": "Paquete Maternidad Cesárea",
+        "contenido": [
+            {
+                "desc": "Habitación Estándar",
+                "cant": 2
+            },
+            {
+                "desc": "Cunero Fisiológico",
+                "cant": 2
+            },
+            {
+                "desc": "Kit de Anestesia Epidural",
+                "cant": 1
+            },
+            {
+                "desc": "Gasas estériles 10x10",
+                "cant": 10
+            },
+            {
+                "desc": "Sutura absorbible",
+                "cant": 2
+            }
+        ]
+    },
+    {
+        "codigo": "PQ-URO-01",
+        "nombre": "Paquete Urología Básica",
+        "contenido": [
+            {
+                "desc": "Derecho de Sala Cirugía Menor",
+                "cant": 1
+            },
+            {
+                "desc": "Sonda Foley",
+                "cant": 1
+            },
+            {
+                "desc": "Bolsa recolectora",
+                "cant": 1
+            }
+        ]
+    }
+]

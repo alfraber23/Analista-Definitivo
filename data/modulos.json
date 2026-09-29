@@ -1,0 +1,72 @@
+{
+    "sap_hana": {
+        "titulo": "1. SAP HANA: Conceptos Básicos",
+        "lecciones": [
+            {
+                "id": "1-1",
+                "subtitulo": "1. Ingreso al Sistema",
+                "texto": "<p>Para acceder a SAP HANA, busca el ícono azul con amarillo en tu barra de tareas.</p><p>En la ventana de conexiones, debes seleccionar siempre <strong>gass-s4-produccion y balanceo</strong> (puedes darle doble clic o seleccionarlo y dar Enter).</p><p>Ingresa tu usuario y contraseña proporcionados por el hospital.</p>",
+                "imagen_placeholder": "[Captura: Ventana de conexiones con la opción gass-s4 resaltada]"
+            },
+            {
+                "id": "1-2",
+                "subtitulo": "2. Navegación y Transacciones",
+                "texto": "<p>En la parte superior verás la cinta de opciones principal con botones estándar: Guardar, Atrás (flecha verde), Subir nivel (flecha amarilla) y Cerrar (X roja).</p><p><strong>Tip pro:</strong> El ícono de la 'ventanita con el solecito' sirve para abrir nuevas pestañas sin cerrar tu trabajo actual.</p><p>Para Análisis de Cuentas, nuestra herramienta principal es la transacción <strong>/CMSBE/BEWS</strong>. Búscala en tu menú de usuario y dale doble clic para abrirla.</p>",
+                "imagen_placeholder": "[Captura: El menú superior señalando el 'solecito' y la transacción /CMSBE/BEWS]"
+            },
+            {
+                "id": "1-3",
+                "subtitulo": "3. Ingresando a un Episodio",
+                "texto": "<p>Al abrir la transacción, ignora el 'Modo de acceso'. Enfócate en los <strong>Parámetros de Selección</strong>:</p><ul><li><strong>Centro:</strong> Siempre escribe <strong>cscr</strong>.</li><li><strong>Episodio:</strong> Ingresa el número de 10 dígitos del paciente.</li><li><strong>Solo visualizar:</strong> ¡Asegúrate de desmarcar esta casilla si está activa!</li></ul><p>Para entrar, no uses la tecla Enter normal. Da clic en el <strong>Relojito con palomita verde</strong> en la parte superior izquierda, o presiona <strong>F8</strong>.</p>",
+                "imagen_placeholder": "[Captura: Ventana de parámetros con 'cscr' y la flecha apuntando al relojito/F8]"
+            },
+            {
+                "id": "1-4",
+                "subtitulo": "4. La Cinta de Opciones de la Cuenta",
+                "texto": "<p>Una vez dentro del episodio, verás los datos del paciente (sexo, teléfono, estado de facturación) y una cinta de botones cruciales para nuestro trabajo:</p><ul><li><strong>Ordenar, Buscar y Filtrar:</strong> Usa los triángulos verdes para ordenar, los binoculares para buscar y el embudo para filtrar. <em>Regla de oro: selecciona primero la columna donde quieres aplicar la acción.</em></li><li><strong>Modificar cuenta:</strong> La <strong>tablita verde</strong> agrega prestaciones. La <strong>tablita roja</strong> hace anulaciones (solo Jefatura/Supervisores, pero debes conocerla).</li><li><strong>Botones Especiales:</strong><ul><li><strong>Episodios relacionados:</strong> Crucial para juntar cuentas de mamá y bebé.</li><li><strong>Ocultar facturadas:</strong> Limpia tu vista para ver solo lo pendiente.</li><li><strong>Split:</strong> Separa un cargo cuando el seguro solo cubre un porcentaje.</li><li><strong>Coaseguros:</strong> Para cargar el porcentaje de participación del paciente.</li></ul></li></ul>",
+                "imagen_placeholder": "[Captura: La barra de herramientas del episodio con recuadros de colores resaltando cada grupo de botones]"
+            },
+            {
+                "id": "1-5",
+                "subtitulo": "5. El Área de Trabajo y Pagadores",
+                "texto": "<p>El área central es como un Excel. Las columnas más importantes son: Fecha, Código, Descripción, Pagador (código y nombre), Precio e Importe facturado.</p><p><strong>El panel inferior (Detalle de Pagadores):</strong> Aquí se gestionan los seguros.</p><p>Del lado izquierdo puedes forzar un <em>precio manual</em> o modificar la <em>cantidad</em>. Del lado derecho, tienes una cinta similar para agregar/anular pagadores y aplicar descuentos usando la <strong>lista de precios manual</strong>. Si das doble clic a un seguro en la lista, podrás aplicar deducibles (lo veremos a fondo más adelante).</p>",
+                "imagen_placeholder": "[Captura: Vista general dividiendo visualmente la 'zona tipo Excel' y el 'panel inferior de pagadores']"
+            }
+        ]
+    },
+    "revision_consumos": {
+        "titulo": "2. Revisión de Consumos",
+        "lecciones": [
+            {
+                "id": "2-1",
+                "subtitulo": "1. El Vistazo Rápido (Papel)",
+                "texto": "<p>Al recibir los consumos de almacén, haz una revisión física rápida antes de firmar la bitácora:</p><ul><li><strong>Consumo General:</strong> Debe tener 4 firmas, etiquetas pegadas con cinta, remisiones externas y hojas de Kener (1 a 3).</li><li><strong>Hemodiálisis:</strong> Solo 1 hoja. Revisa fecha, episodio y 3 firmas.</li><li><strong>Seguro Shriners (Ver hoja 1):</strong> Puede o no traer hoja Kener, pero <em>jamás</em> debe tener cargos Kener facturados.</li></ul>",
+                "imagen_placeholder": "[Foto: Ejemplo visual de dónde localizar las firmas y etiquetas en las hojas físicas]"
+            },
+            {
+                "id": "2-2",
+                "subtitulo": "2. Validación Lógica y Tiempos",
+                "texto": "<p>En SAP (Tx /CMSBE/BEWS), confirma que el Nombre y Seguro coincidan con la primera hoja. Luego, aplica la lógica médica: si la <em>cirugía realizada</em> es una nefrolitotomía, no debe haber kits de laparoscopia o ginecología.</p><p><strong>Cálculo de Tiempos (Anota en espacio en blanco):</strong></p><ul><li><strong>Qx (Quirófano):</strong> Desde Hora Inicio Anestesia hasta Hora Fin Cirugía.</li><li><strong>Ax (Anestesia):</strong> Desde Hora Inicio Anestesia hasta Hora Fin Anestesia.</li><li><strong>Gas:</strong> Anota '=' y el tiempo marcado al final de la hoja.</li></ul>",
+                "imagen_placeholder": "[Foto: Acercamiento a los campos de horas en la hoja física con la anotación manual de Qx y Ax]"
+            },
+            {
+                "id": "2-3",
+                "subtitulo": "3. El Cotejo (Papel vs Sistema)",
+                "texto": "<p>Revisa cargo por cargo leyendo la <strong>Descripción</strong> y el <strong>Neto</strong> (cantidad) en el papel, y búscalo en el sistema. Pon palomita si cuadra, o un asterisco si falta/sobra.</p><p><strong>Reglas de Prestaciones:</strong></p><ul><li>Asegúrate de revisar el cargo de Anestesia, hrs de Cirugía y hrs de Gas.</li><li><em>Particulares:</em> La anestesia se llama 'Integral Regional' (~$5,000).</li><li><em>Seguros:</em> El nombre varía, pero el costo siempre será de <strong>$0.01</strong>.</li><li>Palomea etiquetas (por referencia) y Kener (código 'cir...').</li><li><strong>Tip:</strong> Si hay remisiones externas, ve copiando los códigos a un Bloc de Notas, los usarás en el siguiente paso.</li></ul>",
+                "imagen_placeholder": "[Captura: Vista de la tabla de SAP mostrando un cargo de anestesia de $0.01]"
+            },
+            {
+                "id": "2-4",
+                "subtitulo": "4. Remisiones y Factura Provisional",
+                "texto": "<p>Si hay remisiones, da clic en <strong>Facturas</strong> (menú superior). Selecciona la fila con el <strong>triangulito amarillo</strong> y da clic en <strong>Restricc.</strong></p><ol><li>En el campo <em>Prestación</em>, da clic al botón derecho (cuadrito con flecha).</li><li>Pega tus códigos del Bloc de Notas, clic en palomita verde, relojito abajo y <strong>Aplicar</strong>.</li><li>Abre la factura generada (ícono lupa/papelito). Imprímela (Configuración: Intercalar Izq, Horizontal, Duplex NO, Página Actual).</li><li><strong>Crucial:</strong> Elimina la factura provisional dando clic a la flecha azul (Resetear) y luego al bote de basura.</li></ol>",
+                "imagen_placeholder": "[Captura: El botón de 'Restricc.' y la ventana de lista de prestaciones múltiples]"
+            },
+            {
+                "id": "2-5",
+                "subtitulo": "5. Utilidad y Discrepancias",
+                "texto": "<p>En la hoja que imprimiste, calcula la utilidad por cargo: <strong>Precio Cargo / Costo Unitario</strong>. El resultado debe ser <strong>1.35 o mayor</strong>. Si es menor, pon un post-it y avisa a supervisión.</p><p><strong>Manejo de Discrepancias (Almacén):</strong></p><ul><li>Llama a la <strong>Ext. 2250</strong> (Cirugía General) o marca al 0 para Urología/Gineco.</li><li><em>Ignora:</em> Diferencias mínimas (ej. faltan 2 gasas de $3 pesos).</li><li><em>Reporta:</em> Diferencias de alto costo ($5k+), horas faltantes (Qx, Ax, Gas), derechos de sala o Kener.</li></ul><p>Firma, pon fecha/hora en la hoja 1, y pásalo a VoBo.</p>",
+                "imagen_placeholder": "[Foto: Ejemplo de la hoja de remisión con el cálculo de 1.35 escrito a mano]"
+            }
+        ]
+    }
+}
