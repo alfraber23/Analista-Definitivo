@@ -109,6 +109,9 @@
 
             <!-- CONTENEDOR DEL CURSO (Oculto por defecto) -->
             <section id="modulo-curso" style="display: none;">
+                <button id="btn-reset-admin"
+                    style="display: none; background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%;">🔄
+                    [ADMIN] Reiniciar mi Progreso a 0%</button>
                 <div class="curso-header">
                     <h2>📚 Ruta de Aprendizaje: Análisis de Cuentas</h2>
                     <div class="progreso-container">
@@ -139,7 +142,19 @@
                         <div id="cuerpo-leccion">
                             <p>Aquí irá el contenido interactivo del módulo...</p>
                         </div>
-                        <button id="btn-completar-leccion" class="btn-primario">Marcar como Completado</button>
+                        <div id="cuerpo-leccion" class="leccion-texto">
+                            <!-- El texto se inyecta aquí -->
+                        </div>
+
+                        <!-- NUEVA NAVEGACIÓN -->
+                        <div style="display: flex; gap: 10px; margin-top: 25px;">
+                            <button id="btn-leccion-anterior" class="btn-secundario" style="flex: 1;">⬅️
+                                Anterior</button>
+                            <button id="btn-completar-leccion" class="btn-primario" style="flex: 2;">Marcar como
+                                Completado</button>
+                            <button id="btn-leccion-siguiente" class="btn-secundario" style="flex: 1;">Siguiente
+                                ➡️</button>
+                        </div>
                     </article>
                 </div>
             </section>

@@ -4,6 +4,7 @@ const loginBox = document.getElementById('login-box');
 const registroBox = document.getElementById('registro-box');
 const appDashboard = document.getElementById('app-dashboard');
 const btnLogout = document.getElementById('btn-logout');
+const btnResetAdmin = document.getElementById('btn-reset-admin'); // <-- Selector movido arriba
 
 // Enlaces para cambiar de vista
 const linkIrRegistro = document.getElementById('link-ir-registro');
@@ -36,14 +37,28 @@ auth.onAuthStateChanged(async (user) => {
         authScreen.style.display = 'none';
         appDashboard.style.display = 'block';
 
-        // Opcional: Saludar al usuario en la consola o en el dashboard
         console.log(`Bienvenido, ${usuarioLogueado.nombre}`);
+
+        // <-- AQUÍ VALIDAMOS AL ADMIN (Porque aquí ya sabemos con certeza quién entró) -->
+        if (user.email === 'josealberto.fb15@gmail.com') {
+            btnResetAdmin.style.display = 'block';
+        }
     } else {
         usuarioLogueado = null;
         authScreen.style.display = 'flex';
         loginBox.style.display = 'block';
         registroBox.style.display = 'none';
         appDashboard.style.display = 'none';
+        btnResetAdmin.style.display = 'none'; // Ocultamos el botón si cierran sesión
+    }
+});
+
+// --- EVENTO DEL BOTÓN ADMIN ---
+btnResetAdmin.addEventListener('click', async () => {
+    if (confirm("¿Seguro que quieres reiniciar tu progreso a 0% para hacer pruebas?")) {
+        usuarioLogueado.progresoCapacitacion = 0;
+        await usuarioLogueado.guardarEnNube();
+        window.location.reload();
     }
 });
 
@@ -53,7 +68,7 @@ document.getElementById('btn-ingresar').addEventListener('click', () => {
     const pass = document.getElementById('login-password').value;
     const msjError = document.getElementById('error-login');
 
-    msjError.style.display = 'none'; // Limpiamos errores previos
+    msjError.style.display = 'none';
 
     if (email === "" || pass === "") {
         msjError.textContent = "Ingresa tu correo y contraseña.";
@@ -63,7 +78,6 @@ document.getElementById('btn-ingresar').addEventListener('click', () => {
 
     auth.signInWithEmailAndPassword(email, pass)
         .catch(error => {
-            // Evaluamos el código de error que manda Firebase
             if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                 msjError.textContent = "Correo o contraseña incorrectos.";
             } else {
@@ -80,7 +94,7 @@ document.getElementById('btn-registrar').addEventListener('click', async () => {
     const pass = document.getElementById('reg-password').value;
     const msjError = document.getElementById('error-registro');
 
-    msjError.style.display = 'none'; // Limpiamos errores previos
+    msjError.style.display = 'none';
 
     if (nombre === "" || email === "" || pass === "") {
         msjError.textContent = "Por favor llena todos los campos.";
@@ -92,7 +106,6 @@ document.getElementById('btn-registrar').addEventListener('click', async () => {
         const credencial = await auth.createUserWithEmailAndPassword(email, pass);
         await credencial.user.updateProfile({ displayName: nombre });
     } catch (error) {
-        // Traductor de errores de Firebase para el registro
         if (error.code === 'auth/email-already-in-use') {
             msjError.textContent = "Este correo ya está registrado en el sistema.";
         } else if (error.code === 'auth/weak-password') {
@@ -117,20 +130,21 @@ btnLogout.addEventListener('click', async () => {
 });
 
 
-//Lógica para abrir el curso desde el Dashboard
-const tarjetaCapacitacion = document.getElementById('card-capacitacion');
+// --- LÓGICA DE LAS TARJETAS (HERRAMIENTAS) ---
 const gridTarjetas = document.querySelector('.tools-grid');
+const welcomeSection = document.querySelector('.welcome-section');
+
+// Capacitación
+const tarjetaCapacitacion = document.getElementById('card-capacitacion');
 const seccionCurso = document.getElementById('modulo-curso');
 const btnCerrarCurso = document.getElementById('btn-cerrar-curso');
-
 let gestor = null;
 
 tarjetaCapacitacion.addEventListener('click', () => {
-    gridTarjetas.style.display = 'none'; // Ocultamos las tarjetas
-    document.querySelector('.welcome-section').style.display = 'none';
-    seccionCurso.style.display = 'block'; // Mostramos el curso
+    gridTarjetas.style.display = 'none';
+    welcomeSection.style.display = 'none';
+    seccionCurso.style.display = 'block';
 
-    // Instanciamos el gestor y actualizamos la barra con el progreso guardado
     if (!gestor) gestor = new GestorCurso();
     gestor.actualizarInterfazProgreso();
 });
@@ -138,34 +152,30 @@ tarjetaCapacitacion.addEventListener('click', () => {
 btnCerrarCurso.addEventListener('click', () => {
     seccionCurso.style.display = 'none';
     gridTarjetas.style.display = 'grid';
-    document.querySelector('.welcome-section').style.display = 'block';
+    welcomeSection.style.display = 'block';
 });
 
-
+// Calculadora
 const tarjetaCalculadora = document.getElementById('card-calculadora');
 const seccionCalculadora = document.getElementById('modulo-calculadora');
 const btnCerrarCalculadora = document.getElementById('btn-cerrar-calculadora');
-
 let calculadoraInstancia = null;
 
-// Abrir Calculadora
 tarjetaCalculadora.addEventListener('click', () => {
     gridTarjetas.style.display = 'none';
-    document.querySelector('.welcome-section').style.display = 'none';
+    welcomeSection.style.display = 'none';
     seccionCalculadora.style.display = 'block';
 
-    if (!calculadoraInstancia) {
-        calculadoraInstancia = new CalculadoraTiempos();
-    }
+    if (!calculadoraInstancia) calculadoraInstancia = new CalculadoraTiempos();
 });
 
-// Cerrar Calculadora y volver al inicio
 btnCerrarCalculadora.addEventListener('click', () => {
     seccionCalculadora.style.display = 'none';
     gridTarjetas.style.display = 'grid';
-    document.querySelector('.welcome-section').style.display = 'block';
+    welcomeSection.style.display = 'block';
 });
 
+// Buscador de Paquetes
 const tarjetaPaquetes = document.getElementById('card-paquetes');
 const seccionPaquetes = document.getElementById('modulo-paquetes');
 const btnCerrarPaquetes = document.getElementById('btn-cerrar-paquetes');
@@ -173,7 +183,7 @@ let buscadorInstancia = null;
 
 tarjetaPaquetes.addEventListener('click', () => {
     gridTarjetas.style.display = 'none';
-    document.querySelector('.welcome-section').style.display = 'none';
+    welcomeSection.style.display = 'none';
     seccionPaquetes.style.display = 'block';
 
     if (!buscadorInstancia) buscadorInstancia = new BuscadorPaquetes();
@@ -182,28 +192,25 @@ tarjetaPaquetes.addEventListener('click', () => {
 btnCerrarPaquetes.addEventListener('click', () => {
     seccionPaquetes.style.display = 'none';
     gridTarjetas.style.display = 'grid';
-    document.querySelector('.welcome-section').style.display = 'block';
+    welcomeSection.style.display = 'block';
 });
 
-// Agrega esto donde tienes los otros selectores de tarjetas (calculadora, paquetes, etc.)
+// Aclaraciones
 const tarjetaAclaraciones = document.getElementById('card-aclaraciones');
 const seccionAclaraciones = document.getElementById('modulo-aclaraciones');
 const btnCerrarAclaraciones = document.getElementById('btn-cerrar-aclaraciones');
-
-// Variable para la instancia (que crearemos en el siguiente paso)
 let aclaracionesInstancia = null;
 
 tarjetaAclaraciones.addEventListener('click', () => {
     gridTarjetas.style.display = 'none';
-    document.querySelector('.welcome-section').style.display = 'none';
+    welcomeSection.style.display = 'none';
     seccionAclaraciones.style.display = 'block';
 
-    // Aquí instanciaremos la clase cuando la creemos
     if (!aclaracionesInstancia) aclaracionesInstancia = new GestorAclaraciones();
 });
 
 btnCerrarAclaraciones.addEventListener('click', () => {
     seccionAclaraciones.style.display = 'none';
     gridTarjetas.style.display = 'grid';
-    document.querySelector('.welcome-section').style.display = 'block';
+    welcomeSection.style.display = 'block';
 });
