@@ -263,6 +263,17 @@ body {
     color: white;
 }
 
+.btn-primario:hover {
+    filter: brightness(1.1);
+    /* Lo aclara ligeramente si el fondo es oscuro */
+    /* O puedes usar: filter: brightness(0.9); si prefieres que se oscurezca */
+}
+
+.btn-primario:active {
+    transform: scale(0.98);
+    /* Efecto de hundimiento sutil al hacer clic */
+}
+
 
 /* --- ESTILOS DE LA CALCULADORA --- */
 .calculadora-container {

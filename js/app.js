@@ -1,61 +1,121 @@
-// Elementos del Login
-const loginScreen = document.getElementById('login-screen');
+// Elementos del DOM actualizados
+const authScreen = document.getElementById('auth-screen');
+const loginBox = document.getElementById('login-box');
+const registroBox = document.getElementById('registro-box');
 const appDashboard = document.getElementById('app-dashboard');
-const inputEmail = document.getElementById('input-email');
-const inputPassword = document.getElementById('input-password');
-const btnIngresar = document.getElementById('btn-ingresar');
-const btnRegistrar = document.getElementById('btn-registrar');
 const btnLogout = document.getElementById('btn-logout');
+
+// Enlaces para cambiar de vista
+const linkIrRegistro = document.getElementById('link-ir-registro');
+const linkIrLogin = document.getElementById('link-ir-login');
 
 // Instancia de Auth
 const auth = firebase.auth();
 let usuarioLogueado = null;
 
-// EL VIGILANTE: Escucha si alguien inicia o cierra sesión en tiempo real
+// --- ALTERNAR VISTAS LOGIN/REGISTRO ---
+linkIrRegistro.addEventListener('click', (e) => {
+    e.preventDefault();
+    loginBox.style.display = 'none';
+    registroBox.style.display = 'block';
+});
+
+linkIrLogin.addEventListener('click', (e) => {
+    e.preventDefault();
+    registroBox.style.display = 'none';
+    loginBox.style.display = 'block';
+});
+
+// --- EL VIGILANTE ---
 auth.onAuthStateChanged(async (user) => {
     if (user) {
-        // Alguien inició sesión, descargamos sus datos de Firestore
-        usuarioLogueado = await Usuario.cargarDesdeNube(user.uid, user.email);
+        // Extraemos el nombre que guardamos en su perfil de Google/Firebase
+        const nombrePerfil = user.displayName || "Analista";
+        usuarioLogueado = await Usuario.cargarDesdeNube(user.uid, user.email, nombrePerfil);
 
-        loginScreen.style.display = 'none';
+        authScreen.style.display = 'none';
         appDashboard.style.display = 'block';
-        console.log(`Sesión activa: ${usuarioLogueado.email}`);
+
+        // Opcional: Saludar al usuario en la consola o en el dashboard
+        console.log(`Bienvenido, ${usuarioLogueado.nombre}`);
     } else {
-        // No hay sesión activa, bloqueamos el acceso
         usuarioLogueado = null;
-        loginScreen.style.display = 'flex';
+        authScreen.style.display = 'flex';
+        loginBox.style.display = 'block';
+        registroBox.style.display = 'none';
         appDashboard.style.display = 'none';
     }
 });
 
-// Botón de Iniciar Sesión
-btnIngresar.addEventListener('click', () => {
-    const email = inputEmail.value.trim();
-    const pass = inputPassword.value;
+// --- BOTÓN INICIAR SESIÓN ---
+document.getElementById('btn-ingresar').addEventListener('click', () => {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-password').value;
+    const msjError = document.getElementById('error-login');
+
+    msjError.style.display = 'none'; // Limpiamos errores previos
+
+    if (email === "" || pass === "") {
+        msjError.textContent = "Ingresa tu correo y contraseña.";
+        msjError.style.display = 'block';
+        return;
+    }
+
     auth.signInWithEmailAndPassword(email, pass)
-        .catch(error => alert("Error al ingresar: " + error.message));
+        .catch(error => {
+            // Evaluamos el código de error que manda Firebase
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                msjError.textContent = "Correo o contraseña incorrectos.";
+            } else {
+                msjError.textContent = "Hubo un error al ingresar. Intenta más tarde.";
+            }
+            msjError.style.display = 'block';
+        });
 });
 
-// Botón de Crear Cuenta
-btnRegistrar.addEventListener('click', () => {
-    const email = inputEmail.value.trim();
-    const pass = inputPassword.value;
-    auth.createUserWithEmailAndPassword(email, pass)
-        .catch(error => alert("Error al registrar: " + error.message));
+// --- BOTÓN CREAR CUENTA ---
+document.getElementById('btn-registrar').addEventListener('click', async () => {
+    const nombre = document.getElementById('reg-usuario').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-password').value;
+    const msjError = document.getElementById('error-registro');
+
+    msjError.style.display = 'none'; // Limpiamos errores previos
+
+    if (nombre === "" || email === "" || pass === "") {
+        msjError.textContent = "Por favor llena todos los campos.";
+        msjError.style.display = 'block';
+        return;
+    }
+
+    try {
+        const credencial = await auth.createUserWithEmailAndPassword(email, pass);
+        await credencial.user.updateProfile({ displayName: nombre });
+    } catch (error) {
+        // Traductor de errores de Firebase para el registro
+        if (error.code === 'auth/email-already-in-use') {
+            msjError.textContent = "Este correo ya está registrado en el sistema.";
+        } else if (error.code === 'auth/weak-password') {
+            msjError.textContent = "La contraseña debe tener al menos 6 caracteres.";
+        } else if (error.code === 'auth/invalid-email') {
+            msjError.textContent = "El formato del correo no es válido.";
+        } else {
+            msjError.textContent = "Error al crear la cuenta. Revisa los datos.";
+        }
+        msjError.style.display = 'block';
+    }
 });
 
-// Botón de Cerrar Sesión
+// --- BOTÓN CERRAR SESIÓN ---
 btnLogout.addEventListener('click', async () => {
     try {
         await auth.signOut();
-        // La bala de plata: Forzamos una recarga limpia de la página
         window.location.reload();
     } catch (error) {
         console.error("Error al cerrar sesión:", error);
     }
 });
 
-// ... aquí abajo dejas el resto de tu código de app.js (los clics de las tarjetas, etc.) ...
 
 //Lógica para abrir el curso desde el Dashboard
 const tarjetaCapacitacion = document.getElementById('card-capacitacion');

@@ -15,17 +15,19 @@ const db = firebase.firestore();
 
 // 2. Nuestra Clase Usuario adaptada a la Nube
 class Usuario {
-    constructor(uid, email, progreso = 0) {
-        this.uid = uid; // El ID único que Firebase le da a cada cuenta
+    // Agregamos "nombre" con un valor por defecto por si acaso
+    constructor(uid, email, nombre = "Analista", progreso = 0) {
+        this.uid = uid;
         this.email = email;
+        this.nombre = nombre;
         this.progresoCapacitacion = progreso;
     }
 
-    // Guardar o actualizar en Firestore
     async guardarEnNube() {
         try {
             await db.collection("usuarios").doc(this.uid).set({
                 email: this.email,
+                nombre: this.nombre, // Guardamos el nombre en Firestore
                 progresoCapacitacion: this.progresoCapacitacion
             });
         } catch (error) {
@@ -33,7 +35,6 @@ class Usuario {
         }
     }
 
-    // Avanzar progreso y sincronizar automáticamente
     async avanzarProgreso(porcentaje) {
         this.progresoCapacitacion += porcentaje;
         if (this.progresoCapacitacion > 100) this.progresoCapacitacion = 100;
@@ -42,17 +43,15 @@ class Usuario {
         console.log(`¡Nube sincronizada! Progreso actual: ${this.progresoCapacitacion}%`);
     }
 
-    // Función estática para descargar los datos al iniciar sesión
-    static async cargarDesdeNube(uid, email) {
+    // Le pasamos el nombre desde app.js cuando Firebase lo detecte
+    static async cargarDesdeNube(uid, email, nombre) {
         const docRef = await db.collection("usuarios").doc(uid).get();
 
         if (docRef.exists) {
-            // Si el usuario ya existe, cargamos su progreso
             const data = docRef.data();
-            return new Usuario(uid, email, data.progresoCapacitacion);
+            return new Usuario(uid, email, data.nombre, data.progresoCapacitacion);
         } else {
-            // Si es un usuario recién registrado, creamos su registro en 0%
-            const nuevoUser = new Usuario(uid, email, 0);
+            const nuevoUser = new Usuario(uid, email, nombre, 0);
             await nuevoUser.guardarEnNube();
             return nuevoUser;
         }
