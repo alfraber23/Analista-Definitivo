@@ -45,8 +45,14 @@ btnRegistrar.addEventListener('click', () => {
 });
 
 // Botón de Cerrar Sesión
-btnLogout.addEventListener('click', () => {
-    auth.signOut();
+btnLogout.addEventListener('click', async () => {
+    try {
+        await auth.signOut();
+        // La bala de plata: Forzamos una recarga limpia de la página
+        window.location.reload();
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
 });
 
 // ... aquí abajo dejas el resto de tu código de app.js (los clics de las tarjetas, etc.) ...
@@ -116,6 +122,29 @@ tarjetaPaquetes.addEventListener('click', () => {
 
 btnCerrarPaquetes.addEventListener('click', () => {
     seccionPaquetes.style.display = 'none';
+    gridTarjetas.style.display = 'grid';
+    document.querySelector('.welcome-section').style.display = 'block';
+});
+
+// Agrega esto donde tienes los otros selectores de tarjetas (calculadora, paquetes, etc.)
+const tarjetaAclaraciones = document.getElementById('card-aclaraciones');
+const seccionAclaraciones = document.getElementById('modulo-aclaraciones');
+const btnCerrarAclaraciones = document.getElementById('btn-cerrar-aclaraciones');
+
+// Variable para la instancia (que crearemos en el siguiente paso)
+let aclaracionesInstancia = null;
+
+tarjetaAclaraciones.addEventListener('click', () => {
+    gridTarjetas.style.display = 'none';
+    document.querySelector('.welcome-section').style.display = 'none';
+    seccionAclaraciones.style.display = 'block';
+
+    // Aquí instanciaremos la clase cuando la creemos
+    if (!aclaracionesInstancia) aclaracionesInstancia = new GestorAclaraciones();
+});
+
+btnCerrarAclaraciones.addEventListener('click', () => {
+    seccionAclaraciones.style.display = 'none';
     gridTarjetas.style.display = 'grid';
     document.querySelector('.welcome-section').style.display = 'block';
 });

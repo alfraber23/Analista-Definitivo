@@ -68,6 +68,11 @@
                     <h3>📦 Buscador de Paquetes</h3>
                     <p>Consulta al instante (Adiós Excel).</p>
                 </div>
+
+                <div class="tool-card" id="card-aclaraciones">
+                    <h3>🔍 Aclaraciones</h3>
+                    <p>Consulta códigos especiales y contenidos de charolas.</p>
+                </div>
             </section>
 
             <!-- CONTENEDOR DEL CURSO (Oculto por defecto) -->
@@ -169,6 +174,59 @@
                 </div>
             </section>
 
+            <!-- HERRAMIENTA: ACLARACIONES (Buscador + CRUD Admin) -->
+            <section id="modulo-aclaraciones" style="display: none;">
+                <div class="curso-header">
+                    <h2>🔍 Base de Conocimiento: Aclaraciones</h2>
+                    <button id="btn-cerrar-aclaraciones" class="btn-secundario">Volver al Dashboard</button>
+                </div>
+
+                <div class="buscador-container">
+                    <!-- Buscador para todos los usuarios -->
+                    <div class="search-bar">
+                        <input type="text" id="input-buscar-aclaracion"
+                            placeholder="Ingresa código (ej. 123456789) o descripción...">
+                        <button id="btn-buscar-aclaracion" class="btn-primario" style="margin-top: 0;">Buscar</button>
+                    </div>
+
+                    <!-- Resultados de la búsqueda -->
+                    <div id="resultados-aclaraciones" class="resultados-area" style="margin-bottom: 2rem;">
+                        <p style="color: var(--text-secondary); text-align: center;">Ingresa un código para ver su
+                            descripción y/o contenido.</p>
+                    </div>
+
+                    <!-- PANEL DE ADMINISTRADOR (Solo visible para Beto) -->
+                    <div id="panel-admin"
+                        style="display: none; padding-top: 2rem; border-top: 2px dashed var(--text-secondary);">
+                        <h3 style="color: var(--accent); margin-bottom: 15px;">⚙️ Panel de Administración
+                            (Agregar/Editar)</h3>
+
+                        <div class="input-group">
+                            <label>Código del Artículo/Charola:</label>
+                            <input type="text" id="admin-codigo" placeholder="Ej. 123456">
+                        </div>
+
+                        <div class="input-group">
+                            <label>¿Qué es? (Descripción):</label>
+                            <input type="text" id="admin-desc" placeholder="Ej. Charola de Instrumental Menor">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Contenido (Opcional):</label>
+                            <textarea id="admin-contenido" rows="4" placeholder="Ej. 2 Pinzas Kelly, 1 Tijera Mayo..."
+                                style="width: 100%; padding: 10px; border-radius: 5px; background: var(--bg-main); color: var(--text-primary); border: 1px solid var(--accent); font-family: inherit;"></textarea>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button id="btn-guardar-aclaracion" class="btn-primario" style="flex: 1;">Guardar en Base de
+                                Datos</button>
+                            <button id="btn-limpiar-form" class="btn-secundario" style="flex: 1;">Limpiar
+                                Formulario</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
         </main>
     </div>
 
@@ -176,6 +234,7 @@
     <script src="js/classes/Curso.js"></script>
     <script src="js/classes/Calculadora.js"></script>
     <script src="js/classes/Buscador.js"></script>
+    <script src="js/classes/Aclaraciones.js"></script>
     <script src="js/app.js"></script>
 </body>
 
