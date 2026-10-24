@@ -12,13 +12,18 @@ class GestorCurso {
         this.cuerpoLeccion = document.getElementById('cuerpo-leccion');
         this.listaModulosMenu = document.querySelectorAll('.modulo-item');
 
+        // Extraemos el orden de los módulos directamente del menú lateral
+        this.ordenModulos = Array.from(this.listaModulosMenu).map(item => item.getAttribute('data-id'));
+        this.porcentajePorModulo = 100 / (this.ordenModulos.length || 5); // 20% por cada uno de los 5 módulos
+
         this.moduloActualId = 'sap_hana';
         this.leccionesActuales = [];
         this.bdModulos = null;
 
-        // Separamos el progreso real de lo que estás viendo
+        // Separamos el progreso real dentro del módulo de la lección que se está visualizando
         this.indiceProgreso = 0;
         this.indiceVista = 0;
+        this.moduloBloqueado = false;
 
         this.inicializarEventos();
         this.cargarContenido();
@@ -29,6 +34,25 @@ class GestorCurso {
             const respuesta = await fetch('data/modulos.json');
             this.bdModulos = await respuesta.json();
 
+            // Detectamos automáticamente en qué módulo se quedó el usuario según su porcentaje global
+            const indiceModuloSugerido = Math.min(
+                Math.floor((usuarioLogueado.progresoCapacitacion + 0.001) / this.porcentajePorModulo),
+                this.ordenModulos.length - 1
+            );
+            const idSugerido = this.ordenModulos[indiceModuloSugerido];
+
+            // Si el módulo donde se quedó ya existe en el JSON, lo abrimos ahí; si no, abrimos el primero
+            if (this.bdModulos[idSugerido]) {
+                this.moduloActualId = idSugerido;
+            } else {
+                this.moduloActualId = 'sap_hana';
+            }
+
+            // Actualizamos la clase visual 'activo' en el menú lateral
+            this.listaModulosMenu.forEach(item => {
+                item.classList.toggle('activo', item.getAttribute('data-id') === this.moduloActualId);
+            });
+
             this.leccionesActuales = this.bdModulos[this.moduloActualId].lecciones;
             this.sincronizarLeccionConProgreso();
             this.actualizarInterfazProgreso();
@@ -38,15 +62,34 @@ class GestorCurso {
         }
     }
 
-    sincronizarLeccionConProgreso() {
-        const porcLeccion = 20 / this.leccionesActuales.length;
-        // Calculamos hasta qué lección tiene permiso de estar
-        this.indiceProgreso = Math.floor(usuarioLogueado.progresoCapacitacion / porcLeccion);
+    obtenerIndiceModulo(moduloId) {
+        const idx = this.ordenModulos.indexOf(moduloId);
+        return idx !== -1 ? idx : 0;
+    }
 
-        // El usuario arranca viendo la lección en la que se quedó
+    sincronizarLeccionConProgreso() {
+        const indiceModulo = this.obtenerIndiceModulo(this.moduloActualId);
+        const progresoBaseModulo = indiceModulo * this.porcentajePorModulo; // Ej: Mód 1 = 0%, Mód 2 = 20%, Mód 3 = 40%
+        const progresoGlobal = usuarioLogueado ? usuarioLogueado.progresoCapacitacion : 0;
+
+        // Verificamos si el usuario aún no ha completado el módulo anterior
+        this.moduloBloqueado = (progresoGlobal + 0.001) < progresoBaseModulo;
+
+        // Calculamos cuánto progreso (de 0 a 20%) tiene acumulado específicamente en ESTE módulo
+        const progresoEnModulo = Math.max(
+            0,
+            Math.min(this.porcentajePorModulo, progresoGlobal - progresoBaseModulo)
+        );
+
+        const porcLeccion = this.porcentajePorModulo / this.leccionesActuales.length;
+
+        // Sumamos una pequeña tolerancia (0.001) para evitar errores de redondeo con decimales
+        this.indiceProgreso = Math.floor((progresoEnModulo + 0.001) / porcLeccion);
+
+        // El usuario arranca viendo la lección en la que se quedó dentro de este módulo
         this.indiceVista = this.indiceProgreso;
 
-        // Si ya completó el módulo, le mostramos la última lección para que no vea pantalla rota
+        // Si ya completó todas las lecciones de este módulo, mostramos la última lección
         if (this.indiceVista >= this.leccionesActuales.length) {
             this.indiceVista = this.leccionesActuales.length - 1;
         }
@@ -98,7 +141,7 @@ class GestorCurso {
     }
 
     mostrarLeccion(indice) {
-        // Aseguramos que los botones existan
+        // Aseguramos que los botones sean visibles en módulos activos
         this.btnCompletar.style.display = 'block';
         this.btnAnterior.style.display = 'block';
         this.btnSiguiente.style.display = 'block';
@@ -113,28 +156,40 @@ class GestorCurso {
             </div>
         `;
 
-        // Lógica de botones de navegación
-        this.btnAnterior.disabled = (indice === 0);
-        this.btnAnterior.style.opacity = (indice === 0) ? '0.5' : '1';
+        // Lógica del botón ANTERIOR
+        const enPrimeraLeccion = (indice === 0);
+        this.btnAnterior.disabled = enPrimeraLeccion;
+        this.btnAnterior.style.opacity = enPrimeraLeccion ? '0.5' : '1';
 
-        // Lógica del botón COMPLETAR vs SIGUIENTE
-        if (indice < this.indiceProgreso) {
-            // Estás repasando una lección pasada
+        const enUltimaLeccion = (indice >= this.leccionesActuales.length - 1);
+
+        // Lógica del botón COMPLETAR y SIGUIENTE según el estado del módulo y lección
+        if (this.moduloBloqueado) {
+            // El usuario entró a ver un módulo posterior sin haber terminado el anterior
+            this.btnCompletar.textContent = "🔒 Completa el módulo anterior primero";
+            this.btnCompletar.disabled = true;
+            this.btnCompletar.style.backgroundColor = "var(--bg-main)";
+            this.btnCompletar.style.border = "1px solid var(--text-secondary)";
+
+            this.btnSiguiente.disabled = true;
+            this.btnSiguiente.style.opacity = '0.5';
+        } else if (indice < this.indiceProgreso) {
+            // Está repasando una lección ya completada de este módulo
             this.btnCompletar.textContent = "Lección Completada ✅";
             this.btnCompletar.disabled = true;
             this.btnCompletar.style.backgroundColor = "var(--bg-main)";
             this.btnCompletar.style.border = "1px solid var(--accent)";
 
-            this.btnSiguiente.disabled = false;
-            this.btnSiguiente.style.opacity = '1';
+            this.btnSiguiente.disabled = enUltimaLeccion;
+            this.btnSiguiente.style.opacity = enUltimaLeccion ? '0.5' : '1';
         } else if (indice === this.indiceProgreso) {
-            // Estás en tu lección actual bloqueada
+            // Está en su lección actual pendiente por completar
             this.btnCompletar.textContent = "Marcar como Completado";
             this.btnCompletar.disabled = false;
             this.btnCompletar.style.backgroundColor = "var(--accent)";
             this.btnCompletar.style.border = "none";
 
-            this.btnSiguiente.disabled = true; // No puedes adelantar
+            this.btnSiguiente.disabled = true; // No puede adelantar sin completar
             this.btnSiguiente.style.opacity = '0.5';
         }
     }
@@ -146,9 +201,11 @@ class GestorCurso {
     }
 
     completarLeccionActual() {
-        // Solo puedes completar si estás viendo tu lección límite
+        if (this.moduloBloqueado) return;
+
+        // Solo puede completar si está viendo su lección pendiente dentro del módulo actual
         if (this.indiceVista === this.indiceProgreso && this.indiceProgreso < this.leccionesActuales.length) {
-            const porcentajePorLeccion = 20 / this.leccionesActuales.length;
+            const porcentajePorLeccion = this.porcentajePorModulo / this.leccionesActuales.length;
 
             usuarioLogueado.avanzarProgreso(porcentajePorLeccion);
             this.actualizarInterfazProgreso();
@@ -156,7 +213,7 @@ class GestorCurso {
             this.indiceProgreso++;
             this.indiceVista++;
 
-            // Si acabaste el módulo, lo dejamos viendo la última
+            // Si terminó la última lección del módulo
             if (this.indiceVista >= this.leccionesActuales.length) {
                 this.indiceVista = this.leccionesActuales.length - 1;
                 alert(`¡Felicidades! Has completado el módulo: ${this.bdModulos[this.moduloActualId].titulo}`);
